@@ -2,8 +2,9 @@
 
 ## Getting Started
 
-Install poetry
+Ensure you're using Python 3.9+. And install poetry
 ```bash
+curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 Clone ZKStats python library

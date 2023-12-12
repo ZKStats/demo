@@ -15,12 +15,10 @@ app.get('/', (req, res) => {
     res.send('Success');
   });
 
-  // TODO: return proof, settings, verification key
-  /*
-
-    Settings path: /Users/mhchia/projects/work/pse/demo/data-provider/out/settings.json
-    Verification key path: /Users/mhchia/projects/work/pse/demo/data-provider/out/model.vk
-   */
+  // TODO:
+  // - Return proof, settings, verification key
+  // - Data consumer should already have srs, so with data above they can verify
+  //  the proof.
 });
 
 app.listen(port, () => {
