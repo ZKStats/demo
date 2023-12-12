@@ -1,0 +1,9 @@
+{
+  "name": "zkstats-data-consumer",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@ezkljs/engine": "^7.0.0"
+  }
+}
