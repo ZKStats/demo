@@ -5,7 +5,7 @@ async function loadFileToBuffer(path: string) {
 }
 
 export async function initialize() {
-  // Initialize the WASM module. Here we are overiding the default memory allocation with the recommend allocation for the best performance across all mobile browsers.
+  // Initialize the WASM module. Here we are overriding the default memory allocation with the recommend allocation for the best performance across all mobile browsers.
   await init(
       undefined,
       new WebAssembly.Memory({ initial: 20, maximum: 4096, shared: true }),
