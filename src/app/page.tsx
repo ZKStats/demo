@@ -30,8 +30,14 @@ export async function generateJupyterNotebookForComputation(computation: string,
 async function exampleDownloadNotebook() {
   const name = "mean";
   const date = Date.now();
-  const computation = `from zkstats.models import MeanModel
-Model = MeanModel`
+  const computation = `import torch
+from zkstats.computation import State
+
+def computation(state: State, x: list[torch.Tensor]):
+    x_0 = x[0]
+    out_0 = state.median(x_0)
+    out_1 = state.median(x_0)
+    return state.mean(torch.tensor([out_0, out_1]).reshape(1,-1,1))`
   const notebook = await generateJupyterNotebookForComputation(computation, templateNotebook)
   // Download for testing
   const element = document.createElement("a");
