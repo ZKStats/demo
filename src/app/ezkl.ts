@@ -21,17 +21,35 @@ export async function verifyProof(
     verificationKeyPath: string,
     srsPath: string,
 ) {
-    const [proof, settings, verificationKey, srs] = await Promise.all([
-        loadFileToBuffer(proofPath),
-        loadFileToBuffer(settingsPath),
-        loadFileToBuffer(verificationKeyPath),
-        loadFileToBuffer(srsPath),
-    ]);
+    const proof = await loadFileToBuffer(proofPath)
+    const settings = await loadFileToBuffer(settingsPath)
+    const verificationKey = await loadFileToBuffer(verificationKeyPath)
+    const srs = await loadFileToBuffer(srsPath)
     const output = verify(
         new Uint8ClampedArray(proof),
         new Uint8ClampedArray(verificationKey),
         new Uint8ClampedArray(settings),
         new Uint8ClampedArray(srs),
-    );
+    )
+    // const [proof, settings, verificationKey, srs] = await Promise.all([
+    //     loadFileToBuffer(proofPath),
+    //     loadFileToBuffer(settingsPath),
+    //     loadFileToBuffer(verificationKeyPath),
+    //     loadFileToBuffer(srsPath),
+    // ]);
+    // // * @param {Uint8ClampedArray} proof_js
+    // // * @param {Uint8ClampedArray} vk
+    // // * @param {Uint8ClampedArray} settings
+    // // * @param {Uint8ClampedArray} srs
+    // console.log("!@# proof=", proof)
+    // console.log("!@# settings=", settings)
+    // console.log("!@# verificationKey=", verificationKey)
+    // console.log("!@# srs=", srs)
+    // const output = verify(
+    //     new Uint8ClampedArray(proof),
+    //     new Uint8ClampedArray(verificationKey),
+    //     new Uint8ClampedArray(settings),
+    //     new Uint8ClampedArray(srs),
+    // );
     return output
 }

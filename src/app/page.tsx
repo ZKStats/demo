@@ -5,24 +5,36 @@ import { initialize, verifyProof } from "./ezkl";
 
 const host = "http://localhost:3000";
 const assetsURL = `${host}/assets`;
-const proofPath = `${assetsURL}/model.pf`;
-const settingsPath = `${assetsURL}/settings.json`;
-const verificationKeyPath = `${assetsURL}/model.vk`;
-const srsPath = `${assetsURL}/kzg.srs`;
+const outDir = `${assetsURL}/out`;
+const proofPath = `${outDir}/model.pf`;
+const settingsPath = `${outDir}/settings.json`;
+const verificationKeyPath = `${outDir}/model.vk`;
+// NOTE: kzg.srs is printed from the jupyter notebook
+const srsPath = `${outDir}/kzg.srs`;
 
 // template notebook settings
 const templateNotebook = `${assetsURL}/template.ipynb`;
-const codeInCell = 2;
+const cellForSelectedColumns = 3;
+const cellForUserComputation = 5;
 
 /**
  * Generate the notebook for the computation
  *
  */
-export async function generateJupyterNotebookForComputation(computation: string, templateURL: string) {
+export async function generateJupyterNotebookForComputation(
+  computation: string,
+  selectedColumns: string[],
+  templateURL: string,
+) {
   const splitCode = computation.split("\n").map((line) => `${line}\n`);
   const response = await fetch(templateURL);
   const template = await response.json();
-  const codeCell = template.cells[codeInCell];
+  // Fill the selected columns in the notebook
+  const selectedColumnsCell = template.cells[cellForSelectedColumns];
+  // Put `selected_columns = ["col1", "col2", ...]` in the notebook
+  selectedColumnsCell.source = `selected_columns = ${JSON.stringify(selectedColumns)}`;
+  // Fill the user computation in the notebook
+  const codeCell = template.cells[cellForUserComputation];
   codeCell.source = splitCode;
   return JSON.stringify(template);
 }
@@ -30,15 +42,15 @@ export async function generateJupyterNotebookForComputation(computation: string,
 async function exampleDownloadNotebook() {
   const name = "mean";
   const date = Date.now();
+  const selectedColumns = ["x", "y"];
   const computation = `import torch
 from zkstats.computation import State
 
 def computation(state: State, x: list[torch.Tensor]):
-    x_0 = x[0]
-    out_0 = state.median(x_0)
-    out_1 = state.median(x_0)
+    out_0 = state.median(x[0])
+    out_1 = state.median(x[1])
     return state.mean(torch.tensor([out_0, out_1]).reshape(1,-1,1))`
-  const notebook = await generateJupyterNotebookForComputation(computation, templateNotebook)
+  const notebook = await generateJupyterNotebookForComputation(computation, selectedColumns, templateNotebook)
   // Download for testing
   const element = document.createElement("a");
   const file = new Blob([notebook], {type: 'text/plain'});
@@ -61,7 +73,6 @@ const Page = () => {
         console.log("!@# proofPath=", proofPath)
         console.log("!@# settingsPath=", settingsPath)
         console.log("!@# verificationKeyPath=", verificationKeyPath)
-        console.log("!@# srsPath=", srsPath)
         const result = await verifyProof(
             proofPath,
             settingsPath,
