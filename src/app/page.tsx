@@ -18,8 +18,8 @@ const possibleScales = Array.from({ length: 20 }, (_, i) => i);
 
 // template notebook settings
 const templateNotebook = `${assetsURL}/template.ipynb`;
-const cellForSelectedColumns = 3;
-const cellForUserComputation = 5;
+const cellForSelectedColumns = 4;
+const cellForUserComputation = 6;
 
 /**
  * Generate the notebook for the computation
@@ -53,7 +53,7 @@ from zkstats.computation import State
 def computation(state: State, x: list[torch.Tensor]):
     out_0 = state.median(x[0])
     out_1 = state.median(x[1])
-    return state.mean(torch.tensor([out_0, out_1]).reshape(1,-1,1))`
+    return state.mean(torch.cat([out_0.unsqueeze(0), out_1.unsqueeze(0)]).reshape(-1,1))`
   const notebook = await generateJupyterNotebookForComputation(computation, selectedColumns, templateNotebook)
   // Download for testing
   const element = document.createElement("a");
@@ -70,7 +70,7 @@ const Page = () => {
   useEffect(() => {
     // Call verify function here
     const v = async () => {
-      // await exampleDownloadNotebook();
+      await exampleDownloadNotebook();
       await initialize();
       const dataCommitments = await generateDataCommitment(dataPath, possibleScales);
       console.log("!@# Data commitments:", dataCommitments);
