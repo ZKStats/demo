@@ -18,8 +18,7 @@ const possibleScales = Array.from({ length: 20 }, (_, i) => i);
 
 // template notebook settings
 const templateNotebook = `${assetsURL}/template.ipynb`;
-const cellForSelectedColumns = 4;
-const cellForUserComputation = 6;
+const cellForUserComputation = 4;
 
 /**
  * Generate the notebook for the computation
@@ -27,16 +26,11 @@ const cellForUserComputation = 6;
  */
 export async function generateJupyterNotebookForComputation(
   computation: string,
-  selectedColumns: string[],
   templateURL: string,
 ) {
   const splitCode = computation.split("\n").map((line) => `${line}\n`);
   const response = await fetch(templateURL);
   const template = await response.json();
-  // Fill the selected columns in the notebook
-  const selectedColumnsCell = template.cells[cellForSelectedColumns];
-  // Put `selected_columns = ["col1", "col2", ...]` in the notebook
-  selectedColumnsCell.source = `selected_columns = ${JSON.stringify(selectedColumns)}`;
   // Fill the user computation in the notebook
   const codeCell = template.cells[cellForUserComputation];
   codeCell.source = splitCode;
@@ -46,15 +40,14 @@ export async function generateJupyterNotebookForComputation(
 async function exampleDownloadNotebook() {
   const name = "mean";
   const date = Date.now();
-  const selectedColumns = ["x", "y"];
   const computation = `import torch
-from zkstats.computation import State
+from zkstats.computation import State, Args
 
-def computation(state: State, x: list[torch.Tensor]):
-    out_0 = state.median(x[0])
-    out_1 = state.median(x[1])
-    return state.mean(torch.cat([out_0.unsqueeze(0), out_1.unsqueeze(0)]).reshape(-1,1))`
-  const notebook = await generateJupyterNotebookForComputation(computation, selectedColumns, templateNotebook)
+def computation(state: State, args: Args):
+    x = args["x"]
+    y = args["y"]
+    return state.mean(x), state.mean(y)`
+  const notebook = await generateJupyterNotebookForComputation(computation, templateNotebook)
   // Download for testing
   const element = document.createElement("a");
   const file = new Blob([notebook], {type: 'text/plain'});
